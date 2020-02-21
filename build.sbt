@@ -1,8 +1,6 @@
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 
-import org.scalajs.core.tools.linker.ModuleKind
-
 import scala.sys.process.Process
 
 // both intellij and ci needs this to not OOM during initial import
@@ -22,6 +20,8 @@ Global / onLoad := {
       |*""".stripMargin)
   (Global / onLoad).value
 }
+
+val SlinkyVersion = "0.6.3+29-3b7dd883"
 
 // Uncomment if you want to remove debug output
 //Global / stQuiet := true
@@ -52,7 +52,7 @@ lazy val baseSettings: Project => Project =
         _.withSourceMap(false)
           .withModuleKind(ModuleKind.CommonJSModule)),
       /* for slinky */
-      libraryDependencies ++= Seq("me.shadaj" %%% "slinky-hot" % "0.6.3"),
+      libraryDependencies ++= Seq("me.shadaj" %%% "slinky-hot" % SlinkyVersion),
       scalacOptions += "-Ymacro-annotations"
     )
 
@@ -130,6 +130,7 @@ lazy val `storybook-react` = project
   .enablePlugins(ScalablyTypedConverterExternalNpmPlugin)
   .configure(baseSettings)
   .settings(
+    libraryDependencies ++= Seq("me.shadaj" %%% "slinky-web" % SlinkyVersion),
     /* ScalablyTypedConverterExternalNpmPlugin requires that we define how to install node dependencies and where they are */
     externalNpm := {
       Process("yarn", baseDirectory.value).!
@@ -209,6 +210,7 @@ lazy val `react-native` = project
   .enablePlugins(ScalablyTypedConverterExternalNpmPlugin)
   .configure(baseSettings)
   .settings(
+    libraryDependencies ++= Seq("me.shadaj" %%% "slinky-native" % SlinkyVersion),
     scalaJSUseMainModuleInitializer := false,
     /* ScalablyTypedConverterExternalNpmPlugin requires that we define how to install node dependencies and where they are */
     externalNpm := {
@@ -252,6 +254,7 @@ lazy val withCssLoading: Project => Project =
   */
 lazy val browserProject: Project => Project =
   _.settings(
+    libraryDependencies ++= Seq("me.shadaj" %%% "slinky-web" % SlinkyVersion),
     start := {
       (Compile / fastOptJS / startWebpackDevServer).value
       val indexFrom = baseDirectory.value / "assets/index.html"
